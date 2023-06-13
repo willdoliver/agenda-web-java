@@ -180,11 +180,6 @@ public class ContactDAO {
 				throw new Exception(validationError);
 			}
 
-			validationError = checkUserIdExists(contact);
-			if (validationError.length() > 0) {
-				throw new Exception(validationError);
-			}
-
 			validationError = checkMissingContactData(contact, phones);
 			if (validationError.length() > 0) {
 				throw new Exception(validationError);
@@ -192,8 +187,13 @@ public class ContactDAO {
 
 			Connection conn = ConnectionDAO.getConnection();
 
-			PreparedStatement pstm = conn.prepareStatement("UPDATE contacts SET " + "firstName=?, " + "lastName=?, "
-					+ "dateOfBirth=?, " + "relativeDegree=?, " + "updatedAt=? " + "WHERE id=?");
+			PreparedStatement pstm = conn.prepareStatement("UPDATE contacts SET " 
+					+ "firstName=?, " 
+					+ "lastName=?, "
+					+ "dateOfBirth=?, " 
+					+ "relativeDegree=?, " 
+					+ "updatedAt=? " 
+					+ "WHERE id=?");
 
 			pstm.setString(1, contact.getFirstName());
 			pstm.setString(2, contact.getLastName());

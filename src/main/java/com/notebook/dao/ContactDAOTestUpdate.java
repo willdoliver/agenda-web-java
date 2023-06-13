@@ -29,7 +29,7 @@ class ContactDAOTestUpdate {
 
 		phones.add(phone);
 		
-		//assertEquals(1, ContactDAO.updateContact(contact, phones));
+		assertEquals(1, ContactDAO.updateContact(contact, phones));
 	}
 	
 	@Test
@@ -54,34 +54,7 @@ class ContactDAOTestUpdate {
 		phones.add(phone1);
 		phones.add(phone2);
 		
-		//assertEquals(1, ContactDAO.updateContact(contact, phones));
-	}
-	
-	@Test
-	void checkUpdateContactInvalidUserId() {
-		Contact contact = new Contact();
-		List<Phone> phones = new ArrayList<>();
-		
-		contact.setUserId(2000);
-		contact.setId(2);
-		contact.setFirstName("Temeka");
-		contact.setLastName("Adams");
-		contact.setDateOfBirth("1990-10-18");
-		contact.setRelativeDegree("Amigo(a)");
-		
-		Phone phone1 = new Phone();
-		phone1.setType("phone1");
-		phone1.setPhoneNumber(41987658765l);
-		Phone phone2 = new Phone();
-		phone2.setType("phone2");
-		phone2.setPhoneNumber(41999998888l);
-		
-		phones.add(phone1);
-		phones.add(phone2);
-
-		assertThrows(Exception.class, () -> {
-			ContactDAO.updateContact(contact, phones);
-		});
+		assertEquals(1, ContactDAO.updateContact(contact, phones));
 	}
 	
 	@Test

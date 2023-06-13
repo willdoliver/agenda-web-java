@@ -18,11 +18,9 @@ import com.notebook.dao.UserDAO;
 @WebServlet("/LoginServlet")
 public class LoginServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-//	private final String userID = "will";
-//	private final String password = "willwill";
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		// get request parameters for user and password
+		// get request parameters for username/email and password
 		String usernameEmail = request.getParameter("usernameemail");
 		String pwd = UserDAO.encodePassword(request.getParameter("password"));
 		
@@ -44,17 +42,15 @@ public class LoginServlet extends HttpServlet {
 			} else {
 				RequestDispatcher rd = getServletContext().getRequestDispatcher("/login.html");
 				PrintWriter out = response.getWriter();
-				out.println("<font color=red>Usuario/Email ou senha estao incorretos.</font>");
+				out.println("<font size=5 color=red>Usuario/Email ou senha estao incorretos.</font>");
 				rd.include(request, response);
 			}
 		} catch (Exception e) {
 			RequestDispatcher rd = getServletContext().getRequestDispatcher("/login.html");
 			PrintWriter out = response.getWriter();
-			out.println("<font color=red>Nao foi possivel efetuar login.</font>");
+			out.println("<font size=5 color=red>Nao foi possivel efetuar login.</font>");
 			rd.include(request, response);
 		}
-		
-
 	}
 
 }
