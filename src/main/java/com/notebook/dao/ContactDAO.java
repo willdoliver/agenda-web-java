@@ -12,11 +12,17 @@ import com.notebook.bean.Contact;
 import com.notebook.bean.Phone;
 
 public class ContactDAO {
-	public static List<Contact> getAllContacts(int userId) {
+	public static List<Contact> getAllContacts(int userId) throws Exception {
 		List<Contact> contactList = new ArrayList<Contact>();
 		List<Integer> phoneList = new ArrayList<Integer>();
+		String validationError = "";
 
 		try {
+			validationError = checkUserIdExistsById(userId);
+			if (validationError.length() > 0) {
+				throw new Exception(validationError);
+			}
+
 			Connection conn = ConnectionDAO.getConnection();
 			PreparedStatement pstm = conn.prepareStatement("SELECT * FROM contacts WHERE userId = ? AND isDeleted = 0");
 			pstm.setInt(1, userId);
@@ -50,18 +56,25 @@ public class ContactDAO {
 
 		} catch (Exception e) {
 			System.out.println(e);
+			throw new Exception(e);
 		}
 
 		return contactList;
 	}
 
-	public static Contact getContactById(int contactId) {
+	public static Contact getContactById(int contactId) throws Exception {
 		Contact contact = new Contact();
 
 		List<Integer> phoneList = new ArrayList<Integer>();
 		phoneList.add(contactId);
+		String validationError = "";
 
 		try {
+			validationError = checkContactIdExistsById(contactId);
+			if (validationError.length() > 0) {
+				throw new Exception(validationError);
+			}
+
 			Connection conn = ConnectionDAO.getConnection();
 			PreparedStatement pstm = conn.prepareStatement("SELECT * FROM contacts WHERE id = ? and isDeleted = 0");
 			pstm.setInt(1, contactId);
@@ -80,19 +93,32 @@ public class ContactDAO {
 				contact.setPhoneList(getPhones(phoneList));
 			}
 		} catch (Exception e) {
-
+			System.out.println(e);
+			throw new Exception(e);
 		}
 		return contact;
 	}
 
-	public static int createContact(Contact contact, List<Phone> phones) {
+	public static int createContact(Contact contact, List<Phone> phones) throws Exception {
 		System.out.println("createContact::Start");
 		int status = 0;
 		int statusContact = 0;
 		int statusPhone = 0;
+		String validationError = "";
 
 		try {
 			Connection conn = ConnectionDAO.getConnection();
+
+			validationError = checkUserIdExists(contact);
+			if (validationError.length() > 0) {
+				throw new Exception(validationError);
+			}
+
+			validationError = checkMissingContactData(contact, phones);
+			if (validationError.length() > 0) {
+				throw new Exception(validationError);
+			}
+			
 			String generatedColumns[] = { "id" };
 			PreparedStatement pstm = conn.prepareStatement("INSERT INTO contacts "
 					+ "(userId, firstName, lastName, dateOfBirth, relativeDegree, createdAt) " + "VALUES (?,?,?,?,?,?)",
@@ -135,18 +161,35 @@ public class ContactDAO {
 			}
 		} catch (Exception e) {
 			System.out.println(e);
+			throw new Exception(e);
 		}
 		System.out.println("createContact::Finish::status: " + status);
 		return status;
 	}
 
-	public static int updateContact(Contact contact, List<Phone> phones) {
+	public static int updateContact(Contact contact, List<Phone> phones) throws Exception {
 		int status = 0;
 		int statusContact = 0;
 		int statusPhone = 0;
+		String validationError = "";
 
 		System.out.println("updateContact::Started");
 		try {
+			validationError = checkContactIdExists(contact);
+			if (validationError.length() > 0) {
+				throw new Exception(validationError);
+			}
+
+			validationError = checkUserIdExists(contact);
+			if (validationError.length() > 0) {
+				throw new Exception(validationError);
+			}
+
+			validationError = checkMissingContactData(contact, phones);
+			if (validationError.length() > 0) {
+				throw new Exception(validationError);
+			}
+
 			Connection conn = ConnectionDAO.getConnection();
 
 			PreparedStatement pstm = conn.prepareStatement("UPDATE contacts SET " + "firstName=?, " + "lastName=?, "
@@ -174,8 +217,81 @@ public class ContactDAO {
 
 		} catch (Exception e) {
 			System.out.println(e);
+			throw new Exception(e);
 		}
 		System.out.println("updateContact::Param::status: " + status);
+		return status;
+	}
+
+	public static int removeContact(Contact contact) throws Exception {
+		int status = 0;
+		String validationError = "";
+
+		try {
+			validationError = checkContactIdExists(contact);
+			if (validationError.length() > 0) {
+				throw new Exception(validationError);
+			}
+
+			Connection conn = ConnectionDAO.getConnection();
+			PreparedStatement pstm = conn.prepareStatement("UPDATE contacts SET isDeleted = 1 WHERE id = ?");
+			pstm.setInt(1, contact.getId());
+			status = pstm.executeUpdate();
+		} catch (Exception e) {
+			System.out.println(e);
+			throw new Exception(e);
+		}
+		return status;
+	}
+
+	public static int removeContactById(int contactId) throws Exception {
+		int status = 0;
+		String validationError = "";
+
+		try {
+			validationError = checkContactIdExistsById(contactId);
+			if (validationError.length() > 0) {
+				throw new Exception(validationError);
+			}
+
+			Connection conn = ConnectionDAO.getConnection();
+			PreparedStatement pstm = conn.prepareStatement("UPDATE contacts SET isDeleted = 1 WHERE id = ?");
+			pstm.setInt(1, contactId);
+			status = pstm.executeUpdate();
+		} catch (Exception e) {
+			System.out.println(e);
+			throw new Exception(e);
+		}
+		return status;
+	}
+
+	private static int createPhone(List<Phone> phones) {
+		int status = 0;
+
+		System.out.println("createPhone::Start");
+		try {
+			Connection conn = ConnectionDAO.getConnection();
+			String sql = "INSERT INTO phones (contactId, type, phoneNumber, createdAt) VALUES ";
+
+			System.out.println("createPhone::Params");
+			for (Phone phone : phones) {
+				System.out.println("createPhone::Params::cttId: " + phone.getContactId());
+				System.out.println("createPhone::Params::Type: " + phone.getType());
+				System.out.println("createPhone::Params::Number: " + phone.getPhoneNumber());
+				System.out.println("createPhone::Params::Criado: " + new Date(new java.util.Date().getTime()));
+				sql += "(" + phone.getContactId() + ",'" + phone.getType() + "'," + phone.getPhoneNumber() + ",'"
+						+ new Date(new java.util.Date().getTime()) + "'),";
+
+				System.out.println("--- --- ---");
+			}
+			sql = removeLastChar(sql);
+			System.out.println("createPhone::Params::SQL: " + sql);
+			PreparedStatement pstm = conn.prepareStatement(sql);
+			status = pstm.executeUpdate();
+		} catch (Exception e) {
+			System.out.println(e);
+		}
+		System.out.println("createPhone::Finish::status: " + status);
 		return status;
 	}
 
@@ -225,64 +341,6 @@ public class ContactDAO {
 			System.out.println(e);
 		}
 		System.out.println("UpdatePhone::Finished::status: " + status);
-		return status;
-	}
-
-	public static int removeContact(Contact contact) {
-		int status = 0;
-
-		try {
-			Connection conn = ConnectionDAO.getConnection();
-			PreparedStatement pstm = conn.prepareStatement("UPDATE contacts SET isDeleted = 1 WHERE id = ?");
-			pstm.setInt(1, contact.getId());
-			status = pstm.executeUpdate();
-		} catch (Exception e) {
-			System.out.println(e);
-		}
-		return status;
-	}
-
-	public static int removeContactById(int contactId) {
-		int status = 0;
-
-		try {
-			Connection conn = ConnectionDAO.getConnection();
-			PreparedStatement pstm = conn.prepareStatement("UPDATE contacts SET isDeleted = 1 WHERE id = ?");
-			pstm.setInt(1, contactId);
-			status = pstm.executeUpdate();
-		} catch (Exception e) {
-			System.out.println(e);
-		}
-		return status;
-	}
-
-	private static int createPhone(List<Phone> phones) {
-		int status = 0;
-
-		System.out.println("createPhone::Start");
-		try {
-			Connection conn = ConnectionDAO.getConnection();
-			String sql = "INSERT INTO phones (contactId, type, phoneNumber, createdAt) VALUES ";
-
-			System.out.println("createPhone::Params");
-			for (Phone phone : phones) {
-				System.out.println("createPhone::Params::cttId: " + phone.getContactId());
-				System.out.println("createPhone::Params::Type: " + phone.getType());
-				System.out.println("createPhone::Params::Number: " + phone.getPhoneNumber());
-				System.out.println("createPhone::Params::Criado: " + new Date(new java.util.Date().getTime()));
-				sql += "(" + phone.getContactId() + ",'" + phone.getType() + "'," + phone.getPhoneNumber() + ",'"
-						+ new Date(new java.util.Date().getTime()) + "'),";
-
-				System.out.println("--- --- ---");
-			}
-			sql = removeLastChar(sql);
-			System.out.println("createPhone::Params::SQL: " + sql);
-			PreparedStatement pstm = conn.prepareStatement(sql);
-			status = pstm.executeUpdate();
-		} catch (Exception e) {
-			System.out.println(e);
-		}
-		System.out.println("createPhone::Finish::status: " + status);
 		return status;
 	}
 
@@ -371,4 +429,135 @@ public class ContactDAO {
 		return phones;
 	}
 
+	private static String checkUserIdExists(Contact contact) {
+		String error = "userId invalido";
+		
+		try {
+			if (contact.getUserId() > 0) {
+				Connection conn = ConnectionDAO.getConnection();
+				PreparedStatement pstm = conn.prepareStatement("SELECT id FROM users WHERE id = ?");
+				pstm.setInt(1, contact.getUserId());
+				
+				ResultSet rs = pstm.executeQuery();
+				
+				while(rs.next()) {
+					if (rs.getInt("id") > 0) {
+						error = "";
+						break;
+					}
+				}
+			}
+		} catch (Exception e) {
+			System.out.println(e);
+		}
+		return error;
+	}
+	
+	private static String checkUserIdExistsById(int userId) {
+		String error = "userId invalido";
+		
+		try {
+			if (userId > 0) {
+				Connection conn = ConnectionDAO.getConnection();
+				PreparedStatement pstm = conn.prepareStatement("SELECT id FROM users WHERE id = ?");
+				pstm.setInt(1, userId);
+
+				ResultSet rs = pstm.executeQuery();
+
+				while(rs.next()) {
+					if (rs.getInt("id") > 0) {
+						error = "";
+						break;
+					}
+				}
+			}
+		} catch (Exception e) {
+			System.out.println(e);
+		}
+		return error;
+	}
+	
+	private static String checkContactIdExists(Contact contact) {
+		String error = "contactId invalido";
+		
+		try {
+			if (contact.getId() > 0) {
+				Connection conn = ConnectionDAO.getConnection();
+				PreparedStatement pstm = conn.prepareStatement("SELECT id FROM contacts WHERE id = ? AND isDeleted = 0");
+				pstm.setInt(1, contact.getId());
+				
+				ResultSet rs = pstm.executeQuery();
+				
+				while(rs.next()) {
+					if (rs.getInt("id") > 0) {
+						error = "";
+						break;
+					}
+				}
+			}
+		} catch (Exception e) {
+			System.out.println(e);
+		}
+		return error;
+	}
+	
+	private static String checkContactIdExistsById(int contactId) {
+		String error = "contactId invalido";
+		
+		try {
+			if (contactId > 0) {
+				Connection conn = ConnectionDAO.getConnection();
+				PreparedStatement pstm = conn.prepareStatement("SELECT id FROM contacts WHERE id = ? AND isDeleted = 0");
+				pstm.setInt(1, contactId);
+				
+				ResultSet rs = pstm.executeQuery();
+				
+				while(rs.next()) {
+					if (rs.getInt("id") > 0) {
+						error = "";
+						break;
+					}
+				}
+			}
+		} catch (Exception e) {
+			System.out.println(e);
+		}
+		return error;
+	}
+	
+	private static String checkMissingContactData(Contact contact, List<Phone> phones) {
+		String error = "";
+
+		try {
+			if (contact.getFirstName() == null || contact.getFirstName().isEmpty()) {
+				return "Faltando nome";
+			}
+			if (contact.getLastName() == null || contact.getLastName().isEmpty()) {
+				return "Faltando sobrenome";
+			}
+			if (contact.getDateOfBirth() == null || contact.getDateOfBirth().isEmpty()) {
+				return "Faltando data de nascimento";
+			}
+			if (contact.getRelativeDegree() == null || contact.getRelativeDegree().isEmpty()) {
+				return "Faltando parentesco";
+			}
+			if (phones == null || phones.isEmpty()) {
+				return "Faltando telefones";
+			}
+			
+			for (Phone phone : phones) {
+				if (phone.getType() == null || phone.getType().isEmpty()) {
+					return "Faltando tipo do telefone";
+				}
+				if (phone.getPhoneNumber() == 0) {
+					return "Faltando numero do telefone";
+				}
+			}
+
+		} catch (Exception e) {
+			System.out.println(e);
+		}
+		
+		return error;
+	}
 }
