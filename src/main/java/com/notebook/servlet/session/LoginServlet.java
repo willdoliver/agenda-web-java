@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.notebook.bean.User;
+import com.notebook.controller.UserController;
 import com.notebook.dao.UserDAO;
 
 @WebServlet("/LoginServlet")
@@ -22,11 +23,12 @@ public class LoginServlet extends HttpServlet {
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// get request parameters for username/email and password
 		String usernameEmail = request.getParameter("usernameemail");
-		String pwd = UserDAO.encodePassword(request.getParameter("password"));
-		
-		User user = UserDAO.logIn(usernameEmail, pwd);
-		
+		String pwd = request.getParameter("password");
+
 		try {
+			UserController usercontroller = new UserController();
+			User user = usercontroller.logIn(usernameEmail, pwd);
+			
 			if( (user.getUserName().equals(usernameEmail) || user.getEmail().equals(usernameEmail)) 
 					&& user.getPassword().equals(pwd)) {
 				int timeToExpire = 30*60; // 30 min to expire

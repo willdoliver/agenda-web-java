@@ -1,3 +1,4 @@
+<%@page import="com.notebook.controller.UserController"%>
 <%@ page import="java.util.Date"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"
@@ -13,6 +14,7 @@
 	String checkPassword = request.getParameter("passwordVerify");
 
 	if (password.equals(checkPassword) && password.length() >= 8) {
+		UserController userController = new UserController();
 		User user = new User();
 		int status = 0;
 
@@ -23,20 +25,20 @@
 		user.setLastName(lastName);
 		user.setUserName(userName);
 		user.setEmail(email);
-		user.setPassword(UserDAO.encodePassword(password));
+		user.setPassword(userController.encodePassword(password));
 		user.setCreatedAt(new Date());
-
-		status = UserDAO.createUser(user);
+		
+		status = userController.createUser(user);
 		request.setAttribute("status", status);
 		
 		if (status == 1) {
 			%>
-				<p>Usuario criado com sucesso!</p> 
+				<p>Usuario criado com sucesso!</p>
 				<jsp:include page="login.html"></jsp:include>
 			<%
 		} else {
 			%>
-				<p>Erro ao Criar Usuario</p> 
+				<p>Erro ao Criar Usuario</p>
 				<jsp:include page="createuserform.jsp"></jsp:include>
 			<%
 		}
