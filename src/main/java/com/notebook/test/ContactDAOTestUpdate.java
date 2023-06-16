@@ -1,4 +1,4 @@
-package com.notebook.dao;
+package com.notebook.test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -17,8 +17,8 @@ class ContactDAOTestUpdate {
 		Contact contact = new Contact();
 		List<Phone> phones = new ArrayList<>();
 
-		contact.setUserId(2);
-		contact.setId(2);
+		contact.setUserId(6);
+		contact.setId(51);
 		contact.setFirstName("Temeka");
 		contact.setLastName("Adams");
 		contact.setDateOfBirth("1990-10-18");
@@ -38,8 +38,8 @@ class ContactDAOTestUpdate {
 		Contact contact = new Contact();
 		List<Phone> phones = new ArrayList<>();
 		
-		contact.setUserId(2);
-		contact.setId(2);
+		contact.setUserId(6);
+		contact.setId(51);
 		contact.setFirstName("Temeka");
 		contact.setLastName("Adams");
 		contact.setDateOfBirth("1990-10-18");

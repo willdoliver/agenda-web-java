@@ -1,4 +1,4 @@
-package com.notebook.dao;
+package com.notebook.test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
