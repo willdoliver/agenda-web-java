@@ -1,9 +1,10 @@
-<%@page import="com.notebook.dao.ContactDAO" %>
+<%@page import="com.notebook.controller.ContactController"%>
+
 <jsp:useBean id="c" class="com.notebook.bean.Contact"></jsp:useBean>
 <jsp:setProperty property="*" name="c"></jsp:setProperty>
 
 <%
-	int status = ContactDAO.removeContact(c);
+	int status = ContactController.removeContact(c);
 
 	if (status == 1) {
 		%>

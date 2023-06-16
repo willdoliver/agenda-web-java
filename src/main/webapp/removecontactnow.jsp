@@ -1,7 +1,7 @@
-<%@page import="com.notebook.dao.ContactDAO" %>
+<%@page import="com.notebook.controller.ContactController"%>
 
 <%
 	String id = request.getParameter("id");
-	ContactDAO.removeContactById(Integer.parseInt(id));
+	ContactController.removeContactById(Integer.parseInt(id));
 	response.sendRedirect("dashboard.jsp");
 %>

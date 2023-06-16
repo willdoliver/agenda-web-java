@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 
 import com.notebook.bean.Contact;
 import com.notebook.bean.Phone;
+import com.notebook.controller.ContactController;
 
 class ContactDAOTestUpdate {
 	@Test
@@ -29,7 +30,7 @@ class ContactDAOTestUpdate {
 
 		phones.add(phone);
 		
-		assertEquals(1, ContactDAO.updateContact(contact, phones));
+		assertEquals(1, ContactController.updateContact(contact, phones));
 	}
 	
 	@Test
@@ -54,7 +55,7 @@ class ContactDAOTestUpdate {
 		phones.add(phone1);
 		phones.add(phone2);
 		
-		assertEquals(1, ContactDAO.updateContact(contact, phones));
+		assertEquals(1, ContactController.updateContact(contact, phones));
 	}
 	
 	@Test
@@ -81,7 +82,7 @@ class ContactDAOTestUpdate {
 		phones.add(phone2);
 
 		assertThrows(Exception.class, () -> {
-			ContactDAO.updateContact(contact, phones);
+			ContactController.updateContact(contact, phones);
 		});
 	}
 	
@@ -104,7 +105,7 @@ class ContactDAOTestUpdate {
 		phones.add(phone);
 
 		assertThrows(Exception.class, () -> {
-			ContactDAO.updateContact(contact, phones);
+			ContactController.updateContact(contact, phones);
 		});
 	}
 	
@@ -127,7 +128,7 @@ class ContactDAOTestUpdate {
 		phones.add(phone);
 
 		assertThrows(Exception.class, () -> {
-			ContactDAO.updateContact(contact, phones);
+			ContactController.updateContact(contact, phones);
 		});
 	}
 	
@@ -150,7 +151,7 @@ class ContactDAOTestUpdate {
 		phones.add(phone);
 
 		assertThrows(Exception.class, () -> {
-			ContactDAO.updateContact(contact, phones);
+			ContactController.updateContact(contact, phones);
 		});
 	}
 	
@@ -173,7 +174,7 @@ class ContactDAOTestUpdate {
 		phones.add(phone);
 
 		assertThrows(Exception.class, () -> {
-			ContactDAO.updateContact(contact, phones);
+			ContactController.updateContact(contact, phones);
 		});
 	}
 
@@ -190,7 +191,7 @@ class ContactDAOTestUpdate {
 		contact.setRelativeDegree("Amigo(a)");
 
 		assertThrows(Exception.class, () -> {
-			ContactDAO.updateContact(contact, phones);
+			ContactController.updateContact(contact, phones);
 		});
 	}
 
@@ -213,7 +214,7 @@ class ContactDAOTestUpdate {
 		phones.add(phone);
 
 		assertThrows(Exception.class, () -> {
-			ContactDAO.updateContact(contact, phones);
+			ContactController.updateContact(contact, phones);
 		});
 	}
 
@@ -236,7 +237,7 @@ class ContactDAOTestUpdate {
 		phones.add(phone);
 
 		assertThrows(Exception.class, () -> {
-			ContactDAO.updateContact(contact, phones);
+			ContactController.updateContact(contact, phones);
 		});
 	}
 

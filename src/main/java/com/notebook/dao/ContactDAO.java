@@ -12,17 +12,10 @@ import com.notebook.bean.Contact;
 import com.notebook.bean.Phone;
 
 public class ContactDAO {
-	public static List<Contact> getAllContacts(int userId) throws Exception {
+	public static List<Contact> getContactsByUserId(int userId) throws Exception {
 		List<Contact> contactList = new ArrayList<Contact>();
-		List<Integer> phoneList = new ArrayList<Integer>();
-		String validationError = "";
 
 		try {
-			validationError = checkUserIdExistsById(userId);
-			if (validationError.length() > 0) {
-				throw new Exception(validationError);
-			}
-
 			Connection conn = ConnectionDAO.getConnection();
 			PreparedStatement pstm = conn.prepareStatement("SELECT * FROM contacts WHERE userId = ? AND isDeleted = 0");
 			pstm.setInt(1, userId);
@@ -31,8 +24,6 @@ public class ContactDAO {
 			System.out.println("getAllContacts::ResultSet");
 			while (rs.next()) {
 				Contact contact = new Contact();
-
-				phoneList.add(rs.getInt("id"));
 
 				contact.setId(rs.getInt("id"));
 				contact.setFirstName(rs.getString("firstName"));
@@ -47,13 +38,6 @@ public class ContactDAO {
 			}
 			System.out.println("getAllContacts::Call::getPhones");
 
-			List<Phone> phones = new ArrayList<Phone>();
-			if (phoneList.size() > 0) {
-				phones = getPhones(phoneList);
-			}
-
-			groupContactPhone(contactList, phones);
-
 		} catch (Exception e) {
 			System.out.println(e);
 			throw new Exception(e);
@@ -62,22 +46,15 @@ public class ContactDAO {
 		return contactList;
 	}
 
-	public static Contact getContactById(int contactId) throws Exception {
+	public static Contact getContactByContactId(int contactId) throws Exception {
 		Contact contact = new Contact();
 
-		List<Integer> phoneList = new ArrayList<Integer>();
-		phoneList.add(contactId);
-		String validationError = "";
-
 		try {
-			validationError = checkContactIdExistsById(contactId);
-			if (validationError.length() > 0) {
-				throw new Exception(validationError);
-			}
-
 			Connection conn = ConnectionDAO.getConnection();
+
 			PreparedStatement pstm = conn.prepareStatement("SELECT * FROM contacts WHERE id = ? and isDeleted = 0");
 			pstm.setInt(1, contactId);
+
 			ResultSet rs = pstm.executeQuery();
 
 			while (rs.next()) {
@@ -90,7 +67,6 @@ public class ContactDAO {
 				contact.setRelativeDegree(rs.getString("relativeDegree"));
 				contact.setUserId(rs.getInt("userId"));
 				contact.setUpdatedAt(rs.getDate("updatedAt"));
-				contact.setPhoneList(getPhones(phoneList));
 			}
 		} catch (Exception e) {
 			System.out.println(e);
@@ -99,25 +75,13 @@ public class ContactDAO {
 		return contact;
 	}
 
-	public static int createContact(Contact contact, List<Phone> phones) throws Exception {
+	public static int createContact(Contact contact) throws Exception {
 		System.out.println("createContact::Start");
-		int status = 0;
+		int contactId = 0;
 		int statusContact = 0;
-		int statusPhone = 0;
-		String validationError = "";
 
 		try {
 			Connection conn = ConnectionDAO.getConnection();
-
-			validationError = checkUserIdExists(contact);
-			if (validationError.length() > 0) {
-				throw new Exception(validationError);
-			}
-
-			validationError = checkMissingContactData(contact, phones);
-			if (validationError.length() > 0) {
-				throw new Exception(validationError);
-			}
 			
 			String generatedColumns[] = { "id" };
 			PreparedStatement pstm = conn.prepareStatement("INSERT INTO contacts "
@@ -143,48 +107,23 @@ public class ContactDAO {
 			// Get id created
 			ResultSet rs = pstm.getGeneratedKeys();
 
-			int contactId = 0;
 			if (rs.next()) {
 				contactId = rs.getInt(1);
 			}
-			System.out.println("createContact::Param::contactId: " + contactId);
 
-			if (contactId > 0) {
-				phones = fillPhoneWithContactId(phones, contactId);
-				statusPhone = createPhone(phones);
-				System.out.println("createContact::Param::statusPhone: " + statusPhone);
-
-			}
-
-			if (statusContact == 1 && statusPhone > 0) {
-				status = 1;
-			}
 		} catch (Exception e) {
 			System.out.println(e);
 			throw new Exception(e);
 		}
-		System.out.println("createContact::Finish::status: " + status);
-		return status;
+		System.out.println("createContact::Finish::contactId: " + contactId);
+		return contactId;
 	}
 
-	public static int updateContact(Contact contact, List<Phone> phones) throws Exception {
+	public static int updateContact(Contact contact) throws Exception {
 		int status = 0;
-		int statusContact = 0;
-		int statusPhone = 0;
-		String validationError = "";
 
 		System.out.println("updateContact::Started");
 		try {
-			validationError = checkContactIdExists(contact);
-			if (validationError.length() > 0) {
-				throw new Exception(validationError);
-			}
-
-			validationError = checkMissingContactData(contact, phones);
-			if (validationError.length() > 0) {
-				throw new Exception(validationError);
-			}
-
 			Connection conn = ConnectionDAO.getConnection();
 
 			PreparedStatement pstm = conn.prepareStatement("UPDATE contacts SET " 
@@ -202,18 +141,8 @@ public class ContactDAO {
 			pstm.setDate(5, new Date(new java.util.Date().getTime()));
 			pstm.setInt(6, contact.getId());
 
-			statusContact = pstm.executeUpdate();
-			System.out.println("updateContact::Param::statusContact: " + statusContact);
-
-			if (statusContact == 1) {
-				phones = fillPhoneWithContactId(phones, contact.getId());
-				statusPhone = updatePhone(phones, contact.getId());
-				System.out.println("updateContact::Param::statusPhone: " + statusPhone);
-			}
-
-			if (statusContact == 1 && statusPhone > 0) {
-				status = 1;
-			}
+			status = pstm.executeUpdate();
+			System.out.println("updateContact::Param::statusContact: " + status);
 
 		} catch (Exception e) {
 			System.out.println(e);
@@ -225,14 +154,8 @@ public class ContactDAO {
 
 	public static int removeContact(Contact contact) throws Exception {
 		int status = 0;
-		String validationError = "";
 
 		try {
-			validationError = checkContactIdExists(contact);
-			if (validationError.length() > 0) {
-				throw new Exception(validationError);
-			}
-
 			Connection conn = ConnectionDAO.getConnection();
 			PreparedStatement pstm = conn.prepareStatement("UPDATE contacts SET isDeleted = 1 WHERE id = ?");
 			pstm.setInt(1, contact.getId());
@@ -246,14 +169,8 @@ public class ContactDAO {
 
 	public static int removeContactById(int contactId) throws Exception {
 		int status = 0;
-		String validationError = "";
 
 		try {
-			validationError = checkContactIdExistsById(contactId);
-			if (validationError.length() > 0) {
-				throw new Exception(validationError);
-			}
-
 			Connection conn = ConnectionDAO.getConnection();
 			PreparedStatement pstm = conn.prepareStatement("UPDATE contacts SET isDeleted = 1 WHERE id = ?");
 			pstm.setInt(1, contactId);
@@ -265,7 +182,7 @@ public class ContactDAO {
 		return status;
 	}
 
-	private static int createPhone(List<Phone> phones) {
+	public static int createPhone(List<Phone> phones) {
 		int status = 0;
 
 		System.out.println("createPhone::Start");
@@ -295,7 +212,7 @@ public class ContactDAO {
 		return status;
 	}
 
-	private static int updatePhone(List<Phone> phones, int contactId) {
+	public static int updatePhone(List<Phone> phones, int contactId) {
 		System.out.println("UpdatePhone::Started");
 		int status = 0;
 		int statusDelete = 0;
@@ -344,9 +261,10 @@ public class ContactDAO {
 		return status;
 	}
 
-	private static List<Phone> getPhones(List<Integer> contactIds) {
+	public static List<Phone> getPhonesByIds(List<Integer> contactIds) {
 		List<Phone> phoneList = new ArrayList<Phone>();
 		System.out.println("getAllContacts::getPhone::Started");
+
 		try {
 			String ids = "";
 			Connection conn = ConnectionDAO.getConnection();
@@ -385,51 +303,7 @@ public class ContactDAO {
 		return phoneList;
 	}
 
-	private static void groupContactPhone(List<Contact> contactList, List<Phone> phoneList) {
-		System.out.println("getAllContacts::groupContactPhone::Started");
-		for (Contact contact : contactList) {
-			// System.out.println("getAllContacts::groupContactPhone::contactId:
-			// "+contact.getId());
-			List<Phone> contactListPhone = new ArrayList<Phone>();
-
-			for (Phone phone : phoneList) {
-				// System.out.println("getAllContacts::groupContactPhone::phoneId:
-				// "+phone.getId());
-				if (contact.getId() == phone.getContactId()) {
-					// System.out.println("getAllContacts::groupContactPhone::phone Added");
-					contactListPhone.add(phone);
-				}
-			}
-			contact.setPhoneList(contactListPhone);
-			// System.out.println("getAllContacts::groupContactPhone::Contact Setted");
-		}
-		System.out.println("getAllContacts::groupContactPhone::Finished");
-	}
-
-	private static String removeLastChar(String str) {
-		try {
-			if (str != null && str.length() > 0 && str.charAt(str.length() - 1) == ',') {
-				str = str.substring(0, str.length() - 1);
-			}
-		} catch (Exception e) {
-			System.out.println(e);
-		}
-		return str;
-	}
-
-	private static List<Phone> fillPhoneWithContactId(List<Phone> phones, int contactId) {
-		try {
-			System.out.println("fillPhoneWithContactId::Started");
-			for (Phone phone : phones) {
-				phone.setContactId(contactId);
-			}
-		} catch (Exception e) {
-			System.out.println(e);
-		}
-		return phones;
-	}
-
-	private static String checkUserIdExists(Contact contact) {
+	public static String checkUserIdExists(Contact contact) {
 		String error = "userId invalido";
 		
 		try {
@@ -453,7 +327,7 @@ public class ContactDAO {
 		return error;
 	}
 	
-	private static String checkUserIdExistsById(int userId) {
+	public static String checkUserIdExistsById(int userId) {
 		String error = "userId invalido";
 		
 		try {
@@ -477,7 +351,7 @@ public class ContactDAO {
 		return error;
 	}
 	
-	private static String checkContactIdExists(Contact contact) {
+	public static String checkContactIdExists(Contact contact) {
 		String error = "contactId invalido";
 		
 		try {
@@ -501,7 +375,7 @@ public class ContactDAO {
 		return error;
 	}
 	
-	private static String checkContactIdExistsById(int contactId) {
+	public static String checkContactIdExistsById(int contactId) {
 		String error = "contactId invalido";
 		
 		try {
@@ -525,39 +399,15 @@ public class ContactDAO {
 		return error;
 	}
 	
-	private static String checkMissingContactData(Contact contact, List<Phone> phones) {
-		String error = "";
-
+	private static String removeLastChar(String str) {
 		try {
-			if (contact.getFirstName() == null || contact.getFirstName().isEmpty()) {
-				return "Faltando nome";
+			if (str != null && str.length() > 0 && str.charAt(str.length() - 1) == ',') {
+				str = str.substring(0, str.length() - 1);
 			}
-			if (contact.getLastName() == null || contact.getLastName().isEmpty()) {
-				return "Faltando sobrenome";
-			}
-			if (contact.getDateOfBirth() == null || contact.getDateOfBirth().isEmpty()) {
-				return "Faltando data de nascimento";
-			}
-			if (contact.getRelativeDegree() == null || contact.getRelativeDegree().isEmpty()) {
-				return "Faltando parentesco";
-			}
-			if (phones == null || phones.isEmpty()) {
-				return "Faltando telefones";
-			}
-			
-			for (Phone phone : phones) {
-				if (phone.getType() == null || phone.getType().isEmpty()) {
-					return "Faltando tipo do telefone";
-				}
-				if (phone.getPhoneNumber() == 0) {
-					return "Faltando numero do telefone";
-				}
-			}
-
 		} catch (Exception e) {
 			System.out.println(e);
 		}
-		
-		return error;
+		return str;
 	}
+
 }

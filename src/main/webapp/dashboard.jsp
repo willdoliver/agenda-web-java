@@ -1,3 +1,4 @@
+<%@page import="com.notebook.controller.ContactController"%>
 <%@page import="java.util.ArrayList"%>
 <%@page import="java.util.List"%>
 <%@page language="java" contentType="text/html; charset=UTF-8"
@@ -27,7 +28,7 @@
 	if(userId != null && !userId.isEmpty()) {
 		// User user = UserDAO.getUserById(userId);
 		// request.setAttribute("user", user);
-		contacts = ContactDAO.getAllContacts(Integer.parseInt(userId));
+		contacts = ContactController.getAllContacts(Integer.parseInt(userId));
 		request.setAttribute("contacts", contacts);
 	} else {
 		response.sendRedirect("login.html");

@@ -14,7 +14,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.notebook.bean.User;
 import com.notebook.controller.UserController;
-import com.notebook.dao.UserDAO;
 
 @WebServlet("/LoginServlet")
 public class LoginServlet extends HttpServlet {
@@ -26,11 +25,10 @@ public class LoginServlet extends HttpServlet {
 		String pwd = request.getParameter("password");
 
 		try {
-			UserController usercontroller = new UserController();
-			User user = usercontroller.logIn(usernameEmail, pwd);
+			UserController userController = new UserController();
+			User user = userController.logIn(usernameEmail, pwd);
 			
-			if( (user.getUserName().equals(usernameEmail) || user.getEmail().equals(usernameEmail)) 
-					&& user.getPassword().equals(pwd)) {
+			if(user.getId() > 0) {
 				int timeToExpire = 30*60; // 30 min to expire
 
 				Cookie userIdCookie = new Cookie("userid", Integer.toString(user.getId()));

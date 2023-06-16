@@ -5,19 +5,20 @@ import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 
 import com.notebook.bean.Contact;
+import com.notebook.controller.ContactController;
 
 class ContactDAOTestRemove {
 
 	void checkDeleteContact() throws Exception {
 		Contact contact = new Contact();
 		contact.setId(2);
-		assertEquals(1, ContactDAO.removeContact(contact));
+		assertEquals(1, ContactController.removeContact(contact));
 	}
 	
 	@Test
 	void checkDeleteContactById() throws Exception {
 		int contactId = 2;
-		assertEquals(1, ContactDAO.removeContactById(contactId));
+		assertEquals(1, ContactController.removeContactById(contactId));
 	}
 	
 	@Test
@@ -25,7 +26,7 @@ class ContactDAOTestRemove {
 		Contact contact = new Contact();
 		contact.setId(2000);
 		assertThrows(Exception.class, () -> {
-			ContactDAO.removeContact(contact);
+			ContactController.removeContact(contact);
 		});
 	}
 	
@@ -33,7 +34,7 @@ class ContactDAOTestRemove {
 	void checkDeleteContactInvalidContactIdById() {
 		int contactId = 2000;
 		assertThrows(Exception.class, () -> {
-			ContactDAO.removeContactById(contactId);
+			ContactController.removeContactById(contactId);
 		});
 	}
 

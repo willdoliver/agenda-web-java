@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 
 import com.notebook.bean.Contact;
 import com.notebook.bean.Phone;
+import com.notebook.controller.ContactController;
 
 class ContactDAOTestCreate {
 	@Test
@@ -28,7 +29,7 @@ class ContactDAOTestCreate {
 
 		phones.add(phone);
 		
-		assertEquals(1, ContactDAO.createContact(contact, phones));
+		assertEquals(1, ContactController.createContact(contact, phones));
 	}
 	
 	@Test
@@ -52,7 +53,7 @@ class ContactDAOTestCreate {
 		phones.add(phone1);
 		phones.add(phone2);
 		
-		assertEquals(1, ContactDAO.createContact(contact, phones));
+		assertEquals(1, ContactController.createContact(contact, phones));
 	}
 	
 	@Test
@@ -77,7 +78,7 @@ class ContactDAOTestCreate {
 		phones.add(phone2);
 
 		assertThrows(Exception.class, () -> {
-			ContactDAO.createContact(contact, phones);
+			ContactController.createContact(contact, phones);
 		});
 	}
 	
@@ -99,7 +100,7 @@ class ContactDAOTestCreate {
 		phones.add(phone);
 
 		assertThrows(Exception.class, () -> {
-			ContactDAO.createContact(contact, phones);
+			ContactController.createContact(contact, phones);
 		});
 	}
 	
@@ -121,7 +122,7 @@ class ContactDAOTestCreate {
 		phones.add(phone);
 
 		assertThrows(Exception.class, () -> {
-			ContactDAO.createContact(contact, phones);
+			ContactController.createContact(contact, phones);
 		});
 	}
 	
@@ -143,7 +144,7 @@ class ContactDAOTestCreate {
 		phones.add(phone);
 
 		assertThrows(Exception.class, () -> {
-			ContactDAO.createContact(contact, phones);
+			ContactController.createContact(contact, phones);
 		});
 	}
 	
@@ -165,7 +166,7 @@ class ContactDAOTestCreate {
 		phones.add(phone);
 
 		assertThrows(Exception.class, () -> {
-			ContactDAO.createContact(contact, phones);
+			ContactController.createContact(contact, phones);
 		});
 	}
 
@@ -181,7 +182,7 @@ class ContactDAOTestCreate {
 		contact.setRelativeDegree("Amigo(a)");
 
 		assertThrows(Exception.class, () -> {
-			ContactDAO.createContact(contact, phones);
+			ContactController.createContact(contact, phones);
 		});
 	}
 
@@ -203,7 +204,7 @@ class ContactDAOTestCreate {
 		phones.add(phone);
 
 		assertThrows(Exception.class, () -> {
-			ContactDAO.createContact(contact, phones);
+			ContactController.createContact(contact, phones);
 		});
 	}
 
@@ -225,7 +226,7 @@ class ContactDAOTestCreate {
 		phones.add(phone);
 
 		assertThrows(Exception.class, () -> {
-			ContactDAO.createContact(contact, phones);
+			ContactController.createContact(contact, phones);
 		});
 	}
 

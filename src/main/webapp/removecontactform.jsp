@@ -1,6 +1,7 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<%@ page import="com.notebook.bean.Contact, com.notebook.dao.ContactDAO" %>
+<%@page import="com.notebook.bean.Contact" %>
+<%@page import="com.notebook.controller.ContactController"%>
+<%@page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 
 <!DOCTYPE html>
 
@@ -23,7 +24,7 @@
 	<body>
 		<%
 			String id = request.getParameter("id");
-			Contact contact = ContactDAO.getContactById(Integer.parseInt(id));
+			Contact contact = ContactController.getContactById(Integer.parseInt(id));
 			request.setAttribute("contact", contact);
 		%>
 		

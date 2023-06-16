@@ -26,8 +26,7 @@ public class UserDAO {
 			
 			PreparedStatement pstm = conn.prepareStatement(sql);
 			pstm.setString(1, usernameEmail);
-			
-			
+
 			ResultSet rs = pstm.executeQuery();
 			
 			while(rs.next()) {
@@ -50,10 +49,10 @@ public class UserDAO {
 		} catch (Exception e) {
 			System.out.println(e);
 		}
-		
+
 		return user;
 	}
-	
+
 	public static int createNewUser(User user) {
 		int status = 0;
 		

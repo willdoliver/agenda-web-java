@@ -1,9 +1,6 @@
-<%@
-	page language="java"
-	contentType="text/html; charset=UTF-8"
-	pageEncoding="UTF-8"
-	import="com.notebook.dao.ContactDAO, com.notebook.bean.Contact"
-%>
+<%@page import="com.notebook.bean.Contact"%>
+<%@page import="com.notebook.controller.ContactController"%>
+<%@page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <!DOCTYPE html>
 
@@ -21,7 +18,7 @@
 		response.sendRedirect("login.html");
 	} else {
 		String contactId = request.getParameter("id");
-		contact = ContactDAO.getContactById(Integer.parseInt(contactId));
+		contact = ContactController.getContactById(Integer.parseInt(contactId));
 		request.setAttribute("contact", contact);
 	}
 
